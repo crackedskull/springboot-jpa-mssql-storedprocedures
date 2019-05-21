@@ -1,0 +1,10 @@
+server:
+  port: 8082
+spring:
+  datasource:
+    driver: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://${SQL_INSTANCE_NAME}:${SQL_INSTANCE_PORT};databaseName=${SQL_DB_NAME};applicationName=JasonNowlinJdbcApp;
+    username: ${SQL_USER_NAME}
+    password: ${SQL_USER_PASS}
+  jpa:
+    show-sql: true
