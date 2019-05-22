@@ -8,3 +8,6 @@ spring:
     password: ${SQL_USER_PASS}
   jpa:
     show-sql: true
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
