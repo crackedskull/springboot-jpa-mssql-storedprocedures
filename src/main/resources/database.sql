@@ -137,3 +137,35 @@ BEGIN
         Age ASC;
 END;
 GO
+/*
+DECLARE
+    @i          INT = 0
+  , @iterations INT = 10;
+
+WHILE @i < @iterations
+BEGIN
+    SET @i += 1;
+
+    INSERT INTO dbo.Customers (
+        FirstName
+      , LastName
+      , DateOfBirth
+    )
+    VALUES
+         (
+             NEWID()
+           , NEWID()
+           , DATEADD(DAY, (ABS(CHECKSUM(NEWID())) % 65530), 0)
+         );
+END;
+GO
+
+SELECT
+    *
+FROM
+    dbo.Customers;
+GO
+
+EXEC dbo.GetDemographics;
+GO
+*/
