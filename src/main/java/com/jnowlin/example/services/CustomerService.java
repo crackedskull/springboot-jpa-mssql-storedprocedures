@@ -2,6 +2,7 @@ package com.jnowlin.example.services;
 
 import com.jnowlin.example.domain.Customer;
 import com.jnowlin.example.repositories.CustomerRepository;
+import java.sql.Date;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,8 @@ public class CustomerService {
         this.customerRepository = customerRepository;
     }
 
-    public Long addCustomer(String firstName, String lastName) {
-        return customerRepository.add(firstName, lastName);
+    public Long addCustomer(String firstName, String lastName, Date dateOfBirth) {
+        return customerRepository.add(firstName, lastName, dateOfBirth);
     }
 
     public Iterable<Customer> findAll() {

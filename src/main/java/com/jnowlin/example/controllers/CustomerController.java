@@ -2,6 +2,7 @@ package com.jnowlin.example.controllers;
 
 import com.jnowlin.example.domain.Customer;
 import com.jnowlin.example.services.CustomerService;
+import java.sql.Date;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,8 +25,8 @@ public class CustomerController {
     }
 
     @PostMapping
-    public Long create(@RequestParam String firstName, @RequestParam String lastName) {
-        return customerService.addCustomer(firstName, lastName);
+    public Long create(@RequestParam String firstName, @RequestParam String lastName, @RequestParam Date dateOfBirth) {
+        return customerService.addCustomer(firstName, lastName, dateOfBirth);
     }
 
     @GetMapping

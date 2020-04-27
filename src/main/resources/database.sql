@@ -1,136 +1,139 @@
-USE master
+USE master;
 GO
 
-IF EXISTS
-(
-    SELECT
-        1
-    FROM
-        sys.databases
-    WHERE
-        name = 'JPA'
-)
-    BEGIN
-        ALTER DATABASE JPA
-            SET
-                SINGLE_USER
-            WITH ROLLBACK IMMEDIATE
-    END
+IF DB_ID(N'JPA') IS NULL
+BEGIN
+    CREATE DATABASE JPA;
+END;
 GO
 
-IF EXISTS
-(
-    SELECT
-        1
-    FROM
-        sys.databases
-    WHERE
-        name = 'JPA'
-)
-    BEGIN
-        DROP DATABASE JPA
-    END
+USE JPA;
 GO
 
-CREATE DATABASE JPA
-GO
-
-USE JPA
+DROP TABLE IF EXISTS dbo.Customers;
 GO
 
 CREATE TABLE dbo.Customers (
-    Id        INT           IDENTITY(1, 1) NOT NULL,
-    FirstName NVARCHAR(255) NOT NULL,
-    LastName  NVARCHAR(255) NOT NULL,
-    CONSTRAINT PK_Customers
-        PRIMARY KEY CLUSTERED
-        (
-            Id ASC
-        )
-)
+    Id          INT           IDENTITY(1, 1) NOT NULL
+  , FirstName   NVARCHAR(255) NOT NULL
+  , LastName    NVARCHAR(255) NOT NULL
+  , DateOfBirth DATE          NOT NULL
+  , CONSTRAINT PK_Customers PRIMARY KEY CLUSTERED (Id ASC) WITH (FILLFACTOR = 95, PAD_INDEX = OFF)
+);
 GO
 
-CREATE PROCEDURE dbo.AddCustomer
-    @id        INT OUTPUT,
-    @firstName NVARCHAR(255),
-    @lastName  NVARCHAR(255)
+CREATE OR ALTER PROCEDURE dbo.AddCustomer
+    @id          INT OUTPUT
+  , @firstName   NVARCHAR(255)
+  , @lastName    NVARCHAR(255)
+  , @dateOfBirth DATE
 AS
-    SET XACT_ABORT, NOCOUNT ON
+BEGIN
+    SET XACT_ABORT, NOCOUNT ON;
 
     BEGIN TRY
-        DECLARE @nested INT = @@TRANCOUNT
+        DECLARE @nested INT = @@TRANCOUNT;
 
         IF @nested = 0
-            BEGIN TRANSACTION
+        BEGIN
+            BEGIN TRANSACTION;
+        END;
 
         INSERT INTO dbo.Customers (
-            FirstName,
-            LastName
+            FirstName
+          , LastName
+          , DateOfBirth
         )
         VALUES
-            (@firstName, @lastName)
-
-        IF @nested = 0
-            BEGIN
-                IF XACT_STATE() = 1
-                    BEGIN
-                        COMMIT TRANSACTION
-                    END
-                ELSE
-                    BEGIN
-                        RAISERROR(N'Unable to commit transaction!', 16, 1)
-                    END
-            END
+             (
+                 @firstName
+               , @lastName
+               , @dateOfBirth
+             );
 
         SELECT
-            @id = SCOPE_IDENTITY()
+            @id = SCOPE_IDENTITY();
+
+        IF @nested = 0
+        BEGIN
+            IF XACT_STATE() = 1
+            BEGIN
+                COMMIT TRANSACTION;
+            END;
+            ELSE
+            BEGIN
+                RAISERROR(N'Unable to commit transaction!', 16, 1);
+            END;
+        END;
     END TRY
     BEGIN CATCH
         IF @nested = 0
-            AND XACT_STATE() <> 0
-            BEGIN
-                ROLLBACK TRANSACTION
-            END;
+           AND XACT_STATE() <> 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+        END;
 
-        THROW
-    END CATCH
+        THROW;
+    END CATCH;
+END;
 GO
 
-CREATE PROCEDURE dbo.RemoveCustomer
+CREATE OR ALTER PROCEDURE dbo.RemoveCustomer
     @id INT
 AS
-    SET XACT_ABORT, NOCOUNT ON
+BEGIN
+    SET XACT_ABORT, NOCOUNT ON;
 
     BEGIN TRY
-        DECLARE @nested INT = @@TRANCOUNT
+        DECLARE @nested INT = @@TRANCOUNT;
 
         IF @nested = 0
-            BEGIN TRANSACTION
+            BEGIN TRANSACTION;
 
         DELETE FROM
         dbo.Customers
         WHERE
-            Id = @id
+            Id = @id;
 
         IF @nested = 0
+        BEGIN
+            IF XACT_STATE() = 1
             BEGIN
-                IF XACT_STATE() = 1
-                    BEGIN
-                        COMMIT TRANSACTION
-                    END
-                ELSE
-                    BEGIN
-                        RAISERROR(N'Unable to commit transaction!', 16, 1)
-                    END
-            END
+                COMMIT TRANSACTION;
+            END;
+            ELSE
+            BEGIN
+                RAISERROR(N'Unable to commit transaction!', 16, 1);
+            END;
+        END;
     END TRY
     BEGIN CATCH
         IF @nested = 0
-            AND XACT_STATE() <> 0
-            BEGIN
-                ROLLBACK TRANSACTION
-            END;
+           AND XACT_STATE() <> 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+        END;
 
-        THROW
-    END CATCH
+        THROW;
+    END CATCH;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.GetDemographics
+AS
+BEGIN
+    SET XACT_ABORT, NOCOUNT ON;
+
+    DECLARE @today DATE = GETDATE();
+
+    SELECT
+        Age = DATEDIFF(YEAR, DateOfBirth, @today)
+      , Count = COUNT(*)
+    FROM
+        dbo.Customers
+    GROUP BY
+        DateOfBirth
+    ORDER BY
+        Age ASC;
+END;
 GO

@@ -1,5 +1,6 @@
 package com.jnowlin.example.domain;
 
+import java.sql.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -30,6 +31,11 @@ import javax.persistence.Table;
                 name = "lastName",
                 mode = ParameterMode.IN,
                 type = String.class
+            ),
+            @StoredProcedureParameter(
+                name = "dateOfBirth",
+                mode = ParameterMode.IN,
+                type = Date.class
             )
         }
     ),
@@ -54,6 +60,8 @@ public class Customer {
     private String firstName;
     @Column(name = "LastName")
     private String lastName;
+    @Column(name = "DateOfBirth")
+    private Date dateOfBirth;
 
     public Long getId() {
         return id;
@@ -77,5 +85,13 @@ public class Customer {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 }

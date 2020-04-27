@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.jnowlin.example.repositories.CustomerRepository;
+import java.sql.Date;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,12 @@ public class CustomerServiceTests {
     public void itShouldAddNewCustomer() {
         String firstName = "test";
         String lastName = "user";
-        when(customerRepository.add(firstName, lastName)).thenReturn(1L);
+        Date dateOfBirth = Date.valueOf("2020-04-20");
+        when(customerRepository.add(firstName, lastName, dateOfBirth)).thenReturn(1L);
 
-        Long id = customerService.addCustomer(firstName, lastName);
+        Long id = customerService.addCustomer(firstName, lastName, dateOfBirth);
 
-        verify(customerRepository, times(1)).add(firstName, lastName);
+        verify(customerRepository, times(1)).add(firstName, lastName, dateOfBirth);
         assertThat(id, is(1L));
     }
 
